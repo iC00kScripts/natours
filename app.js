@@ -154,30 +154,29 @@ const deleteUser = (req, res) => {
 
 //ROUTES
 //TOURS route grouping
-app
-  .route('/api/v1/tours')
-  .get(getAllTours)
-  .post(createTour);
-
-app
-  .route('/api/v1/tours/:id')
+const tourRouter = express.Router();
+tourRouter.route('/').get(getAllTours).post(createTour);
+//the route's home is /api/v1/tours therefore no need to include that in the route path again
+tourRouter
+  .route('/:id')
   .get(getTour)
   .patch(updateTour)
   .delete(deleteTour);
 
+app.use('/api/v1/tours', tourRouter); //the general tours path
+
 //USERS route grouping
+const userRouter = express.Router();
 
-app
-  .route('/api/v1/users')
-  .get(getAllUsers)
-  .post(createUser);
+userRouter.route('/').get(getAllUsers).post(createUser);
 
-app
-  .route('/api/v1/users/:id')
+userRouter
+  .route('/:id')
   .get(getUser)
   .patch(updateUser)
   .delete(deleteUser);
 
+app.use('/api/v1/users', userRouter);
 //START THE SERVER
 
 const port = 3000;
