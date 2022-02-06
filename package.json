@@ -13,6 +13,7 @@
   "author": "Funsho Arashi",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.2"
+    "express": "^4.17.2",
+    "morgan": "^1.10.0"
   }
 }

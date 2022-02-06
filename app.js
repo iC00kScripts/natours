@@ -1,12 +1,15 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
 
-const port = 3000;
 const simpleToursFile = `${__dirname}/dev-data/data/tours-simple.json`;
+const tours = JSON.parse(fs.readFileSync(simpleToursFile));
 
 //middleware
+app.use(morgan('dev')); //using the morgan logging middleware
+
 app.use(express.json()); //this middleware helps us to modify the request data
 
 app.use((req, res, next) => {
@@ -18,10 +21,6 @@ app.use((req, res, next) => {
   req.requestTime = new Date().toISOString(); //add the current time to the requests using middleware
   next();
 });
-
-//ROUTES
-
-const tours = JSON.parse(fs.readFileSync(simpleToursFile));
 
 //route handlers
 const getAllTours = (req, res) => {
@@ -107,6 +106,41 @@ const deleteTour = (req, res) => {
   });
 };
 
+const getAllUsers = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not currenty supported',
+  });
+};
+
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not currenty supported',
+  });
+};
+
+const getUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not currenty supported',
+  });
+};
+
+const updateUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not currenty supported',
+  });
+};
+
+const deleteUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not currenty supported',
+  });
+};
+
 //get the tours json
 //app.get('/api/v1/tours', getAllTours);
 //get a tour by it's id
@@ -118,7 +152,8 @@ const deleteTour = (req, res) => {
 //delete tour
 //app.delete('/api/v1/tours/:id', deleteTour);
 
-//route grouping
+//ROUTES
+//TOURS route grouping
 app
   .route('/api/v1/tours')
   .get(getAllTours)
@@ -130,7 +165,22 @@ app
   .patch(updateTour)
   .delete(deleteTour);
 
-//START THE APP
+//USERS route grouping
+
+app
+  .route('/api/v1/users')
+  .get(getAllUsers)
+  .post(createUser);
+
+app
+  .route('/api/v1/users/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
+
+//START THE SERVER
+
+const port = 3000;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
