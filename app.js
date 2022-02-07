@@ -10,10 +10,7 @@ const app = express();
 //middleware
 app.use(morgan('dev')); //using the morgan logging middleware
 app.use(express.json()); //this middleware helps us to modify the request data
-app.use((req, res, next) => {
-  console.log('Hello from the middleware');
-  next();
-});
+
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString(); //add the current time to the requests using middleware
   next();
