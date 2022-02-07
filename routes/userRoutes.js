@@ -1,5 +1,5 @@
-const userController = require('./../controllers/userController');
 const express = require('express');
+const userController = require('../controllers/userController');
 
 //USERS route grouping
 const router = express.Router();

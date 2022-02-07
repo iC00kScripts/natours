@@ -1,4 +1,5 @@
 const fs = require('fs');
+
 const simpleToursFile = `${__dirname}/../dev-data/data/tours-simple.json`;
 const tours = JSON.parse(fs.readFileSync(simpleToursFile));
 
@@ -18,7 +19,7 @@ exports.checkID = (req, res, next, value) => {
 exports.checkBody = (req, res, next) => {
   console.log(`Post body is ${JSON.stringify(req.body)}`);
   const reqParams = req.body;
-  var message = '';
+  let message = '';
 
   if (!reqParams.name) {
     message += 'Name must be provided\n';
@@ -67,21 +68,17 @@ exports.getTour = (req, res) => {
 exports.createTour = (req, res) => {
   //console.log(req.body);
   const newID = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newID }, req.body);
+  const newTour = { id: newID, ...req.body };
   tours.push(newTour);
 
-  fs.writeFile(
-    simpleToursFile,
-    JSON.stringify(tours),
-    (err) => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          tour: newTour,
-        },
-      });
-    }
-  );
+  fs.writeFile(simpleToursFile, JSON.stringify(tours), () => {
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  });
 };
 
 exports.updateTour = (req, res) => {
