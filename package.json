@@ -7,7 +7,7 @@
   "description": "Learning nodejs, expressjs and mongodb for backend development",
   "main": "app.js",
   "scripts": {
-    "start:dev": "nodemon server.js",
+    "start": "nodemon -L server.js",
     "start:prod": "NODE_ENV=production nodemon server.js"
   },
   "repository": {
@@ -19,6 +19,7 @@
   "dependencies": {
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
+    "mongoose": "^5.13.14",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
