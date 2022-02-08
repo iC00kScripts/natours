@@ -4,7 +4,7 @@ const tourController = require('../controllers/tourController');
 //TOURS route grouping
 const router = express.Router();
 
-router.param('id', tourController.checkID); //validate ID by running the middleware
+//router.param('id', tourController.checkID); //validate ID by running the middleware
 
 router
   .route('/')
