@@ -1,7 +1,12 @@
 {
-  "plugins": ["prettier"],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+
+  "env": {
+    "es6": true
+  },
   "rules": {
-    "prettier/prettier": "error",
     "spaced-comment": "off",
     "no-console": "off",
     "consistent-return": "off",
@@ -12,7 +17,6 @@
     "no-return-await": "off",
     "no-underscore-dangle": "off",
     "class-methods-use-this": "off",
-    "endOfLine": "auto",
     "prefer-destructuring": ["error", { "object": true, "array": false }],
     "no-unused-vars": ["error", { "argsIgnorePattern": "req|res|next|val" }]
   }
