@@ -39,8 +39,35 @@ const Tour = require('./../models/tourModel');//import the Tour model
 //route handlers
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find(); //retrieve all tours from the database
 
+    //const queryObject = { ...req.query }; //copy the request queries into a new variable
+    //const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    //Filtering
+    // eslint-disable-next-line no-unused-vars
+    const { page, sort, limit, fields, ...queryObject } = req.query; //OR excludedFields.forEach(el => delete
+                                                                     // queryObject[el] will  exclude these fields from
+                                                                     // the copy of the request queries and save others
+                                                                     // into a new variable queryObject
+    //Advanced filtering, implementing gte, lt, lte and others as presented within the query params
+    let queryString = JSON.stringify((queryObject));
+    queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+    //const tours = await Tour.find(queryObject); retrieve all tours from the database or filter by query params sent
+    // with the request
+    let query = Tour.find(JSON.parse(queryString)); //start chaining the queries
+
+    //SORTING THE RESULT
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' '); //allows us to sort by multiple fields e.g sort('price ratingsAverage')
+      query.sort(sortBy); //sorts by the given column in ascending order. adding '-' to the sort params ensures that results are sorted in descending order
+    } else {
+      //adding a default sort to the query to sort by latest items
+      query = query.sort('-createdAt');
+    }
+
+    const tours = await query;//execute the chained queries on the database model
+
+
+    //send response
     res.status(200).json({
       status: 'success',
       results: tours.length,
