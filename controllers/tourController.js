@@ -1,4 +1,5 @@
 const Tour = require('./../models/tourModel');//import the Tour model
+const APIFeatures = require('./../utils/apiFeatures');
 
 
 //create middleware function to use in the param middleware to check for valid Id
@@ -36,6 +37,7 @@ const Tour = require('./../models/tourModel');//import the Tour model
 //   next();
 // };
 //middleware that prefills the query params to return for api aliasing
+
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
@@ -47,53 +49,13 @@ exports.aliasTopTours = (req, res, next) => {
 exports.getAllTours = async (req, res) => {
   try {
 
-    //const queryObject = { ...req.query }; //copy the request queries into a new variable
-    //const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    //Filtering
-    // eslint-disable-next-line no-unused-vars
-    const { page, sort, limit, fields, ...queryObject } = req.query; //OR excludedFields.forEach(el => delete
-                                                                     // queryObject[el] will  exclude these fields from
-                                                                     // the copy of the request queries and save others
-                                                                     // into a new variable queryObject
-    //Advanced filtering, implementing gte, lt, lte and others as presented within the query params
-    let queryString = JSON.stringify((queryObject));
-    queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-    //const tours = await Tour.find(queryObject); retrieve all tours from the database or filter by query params sent
-    // with the request
-    let query = Tour.find(JSON.parse(queryString)); //start chaining the queries
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate(0); //run all features on the query
 
-    //SORTING THE RESULT
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' '); //allows us to sort by multiple fields e.g sort('price ratingsAverage')
-      query.sort(sortBy); //sorts by the given column in ascending order. adding '-' to the sort params ensures that results are sorted in descending order
-    } else {
-      //adding a default sort to the query to sort by latest items
-      query = query.sort('-_id'); //in production, we will sort by -createdAt to show latest items first
-    }
-
-    //FIELD LIMITING -  this helps to exclude unneeded fields from the response and reduce bandwidth usage
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields); //this action is referred to as projecting
-    } else {
-      query = query.select('-__v'); //by default, exclude the __v field from the response
-    }
-
-    //PAGINATION
-    const pageNum = req.query.page * 1 || 1; //get the page number from query or use the default
-    const limitNum = req.query.limit * 1 || 100; //default page limit is 100 if absent in query
-    const skipDocs = (pageNum - 1) * limitNum; // algorithm to calculate the number of documents to skip before returning the result
-
-    query = query.skip(skipDocs).limit(limitNum);
-
-    //handles case where page param is greater than results available
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skipDocs >= numTours) throw new Error('This page does not exist');
-    }
-
-
-    const tours = await query;//execute the chained queries on the database model
+    const tours = await features.query; //execute the chained queries on the database model
 
 
     //send response
@@ -213,4 +175,18 @@ exports.deleteTour = async (req, res) => {
     });
   }
 
+};
+
+
+exports.getTourStats = async (req, res) => {
+  try {
+
+    const stats = Tour.aggregate([]);
+
+  } catch (e) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid Data sent!'
+    });
+  }
 };
