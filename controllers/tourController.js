@@ -61,8 +61,30 @@ exports.getAllTours = async (req, res) => {
       query.sort(sortBy); //sorts by the given column in ascending order. adding '-' to the sort params ensures that results are sorted in descending order
     } else {
       //adding a default sort to the query to sort by latest items
-      query = query.sort('-createdAt');
+      query = query.sort('-_id'); //in production, we will sort by -createdAt to show latest items first
     }
+
+    //FIELD LIMITING -  this helps to exclude unneeded fields from the response and reduce bandwidth usage
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields); //this action is referred to as projecting
+    } else {
+      query = query.select('-__v'); //by default, exclude the __v field from the response
+    }
+
+    //PAGINATION
+    const pageNum = req.query.page * 1 || 1; //get the page number from query or use the default
+    const limitNum = req.query.limit * 1 || 100; //default page limit is 100 if absent in query
+    const skipDocs = (pageNum - 1) * limitNum; // algorithm to calculate the number of documents to skip before returning the result
+
+    query = query.skip(skipDocs).limit(limitNum);
+
+    //handles case where page param is greater than results available
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skipDocs >= numTours) throw new Error('This page does not exist');
+    }
+
 
     const tours = await query;//execute the chained queries on the database model
 

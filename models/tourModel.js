@@ -46,10 +46,11 @@ const tourSchema = new mongoose.Schema({ //Creating the Tour Schema in Mongoose
     type: String,
     required: [true, 'A Tour must have a cover image']
   },
-  images: [String],//images here is being defined as an array of strings
+  images: [String],//images here is being defined as an array of strings pointing to each image location in the file system
   createdAt: {//Automatically created timestamp
     type: Date,
-    default: Date.now()
+    default: Date.now(),
+    select: false //setting this excludes the field from the returned responses
   },
   startDates: [Date] //array of different start dates for the tour
 });
