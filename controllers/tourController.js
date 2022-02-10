@@ -35,6 +35,13 @@ const Tour = require('./../models/tourModel');//import the Tour model
 //
 //   next();
 // };
+//middleware that prefills the query params to return for api aliasing
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
 
 //route handlers
 exports.getAllTours = async (req, res) => {

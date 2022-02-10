@@ -6,6 +6,11 @@ const router = express.Router();
 
 //router.param('id', tourController.checkID); //validate ID by running the middleware
 
+//CREATING AN API ALIASING FOR THE TOP 5, CHEAPEST TOURS USING A MIDDLEWARE THAT PREFILLS SPECIFIC VARIABLES
+router
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTours, tourController.getAllTours);
+
 router
   .route('/')
   .get(tourController.getAllTours)
