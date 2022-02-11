@@ -181,12 +181,43 @@ exports.deleteTour = async (req, res) => {
 exports.getTourStats = async (req, res) => {
   try {
 
-    const stats = Tour.aggregate([]);
+    const stats = await Tour.aggregate([
+      { //aggregation pipeline helps to calculate specified fields and returns the response
+        $match: { ratingsAverage: { $gte: 4.5 } }
+      },
+      {
+        $group: {
+          //_id: null, // using null here, ensures that the aggregated results are not grouped by any field
+          _id: { $toUpper: '$difficulty' },//returns aggregated results  grouped by difficulty field
+          numTours: { $sum: 1 }, //since each documents will be going through the pipeline adding 1 each pass will finally return the total
+          numRatings: { $sum: '$ratingsQuantity' },
+          avgRating: { $avg: '$ratingsAverage' }, //the average rating
+          avgPrice: { $avg: '$price' },//the price
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' }
+        }
+      },
+      {
+        $sort: { avgPrice: 1 } //sorting the results of the aggregate pipeline based on properties defined above ( here, sort by avgPrice in ascending order)
+      }
+      //stages can be repeated. the below snippet is to show that functionality
+      // {
+      //   $match: { _id: { $ne: 'EASY' } } // this returns results with _id not equal to EASY
+      // }
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        stats //return the stats aggregate
+      }
+    });
 
   } catch (e) {
-    res.status(400).json({
+    console.log(e);
+    res.status(404).json({
       status: 'fail',
-      message: 'Invalid Data sent!'
+      message: e.toString()
     });
   }
 };

@@ -15,6 +15,12 @@ router
   .route('/')
   .get(tourController.getAllTours)
   .post(tourController.createTour); // to use a middleware on this path alone, use something like.post(tourController.checkBody, tourController.createTour);
+
+//get the stats using its own route.
+router
+  .route('/tour-stats')
+  .get(tourController.getTourStats);
+
 //the route's home is /api/v1/tours therefore no need to include that in the route path again
 router
   .route('/:id')
