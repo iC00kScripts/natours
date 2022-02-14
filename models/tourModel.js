@@ -86,14 +86,24 @@ tourSchema.pre('save', function(next) {
 
 //QUERY MIDDLEWARE
 tourSchema.pre(/^find/, function(next) { //using regex to apply the middleware to every variant of the find operation
-  this.find({
+  this.find({ //'this' object here points to the query object
     secretTour: { $ne: true }
   });
   next();
 });
 
 tourSchema.post(/^find/, function(docs, next) {
+  next();
+});
 
+//AGGREGATION MIDDLEWARE
+tourSchema.pre('aggregate', function(next) { //'this' object here, points to the current aggregate object
+  this.pipeline()
+      .unshift({
+        $match: {
+          secretTour: { $ne: true }
+        }
+      }); //unshift adds the element at the beginning of the array
   next();
 });
 
