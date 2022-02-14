@@ -53,7 +53,11 @@ const tourSchema = new mongoose.Schema({ //Creating the Tour Schema in Mongoose
       default: Date.now(),
       select: false //setting this excludes the field from the returned responses
     },
-    startDates: [Date] //array of different start dates for the tour
+    startDates: [Date],//array of different start dates for the tour
+    secretTour: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     toJSON: { virtuals: true }, //enable virtual properties to be displayed in JSON responses
@@ -66,6 +70,7 @@ tourSchema.virtual('durationWeeks').get(function() { //using regular function to
   return this.duration / 7;
 });
 
+//DOCUMENT MIDDLEWARE
 //defining a mongodb document middleware that runs before the model is processed or saved. runs before .save() and .create()
 tourSchema.pre('save', function(next) {
   this.slug = slugify(this.name, { lower: true });
@@ -78,6 +83,20 @@ tourSchema.pre('save', function(next) {
 //   console.log(doc);
 //   next();
 // });
+
+//QUERY MIDDLEWARE
+tourSchema.pre(/^find/, function(next) { //using regex to apply the middleware to every variant of the find operation
+  this.find({
+    secretTour: { $ne: true }
+  });
+  next();
+});
+
+tourSchema.post(/^find/, function(docs, next) {
+
+  next();
+});
+
 const Tour = mongoose.model('Tour', tourSchema); //creating the model based on the defined schema
 
 module.exports = Tour; //export the model
