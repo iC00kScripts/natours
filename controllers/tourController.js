@@ -214,7 +214,59 @@ exports.getTourStats = async (req, res) => {
     });
 
   } catch (e) {
-    console.log(e);
+    res.status(404).json({
+      status: 'fail',
+      message: e.toString()
+    });
+  }
+};
+
+exports.getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+    const plan = await Tour.aggregate([
+      {
+        $unwind: '$startDates' //extracts the document into individual documents by splitting the startDates array
+      },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`), //make sure we match the full year starting January 1 and ending december 31
+            $lte: new Date(`${year}-12-31`)
+          }
+        }
+      }
+      , {
+        $group: {
+          _id: { $month: '$startDates' }, //extract the month from the startdate and group documents in result  by month
+          numTourStarts: { $sum: 1 }, //for each tours that match, sum them
+          tours: { $push: '$name' } // push the name of the tours that match into an array with property name 'tours'
+        }
+      },
+      {
+        $addFields: { month: '$_id' } // add a new field called month with value of _id
+      },
+      {
+        $project: {
+          _id: 0 //hide the _id field from the result
+        }
+      },
+      {
+        $sort: { numTourStarts: -1 } //sort the result by the numTourStarts field in descending order
+      },
+      {
+        $limit: 12// limit the results returned to 12
+      }
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        plan
+      }
+    });
+
+  } catch (e) {
     res.status(404).json({
       status: 'fail',
       message: e.toString()

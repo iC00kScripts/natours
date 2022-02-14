@@ -21,6 +21,11 @@ router
   .route('/tour-stats')
   .get(tourController.getTourStats);
 
+//get monthly plan by year.
+router
+  .route('/monthly-plan/:year')
+  .get(tourController.getMonthlyPlan);
+
 //the route's home is /api/v1/tours therefore no need to include that in the route path again
 router
   .route('/:id')
