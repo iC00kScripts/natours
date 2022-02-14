@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const slugify = require('slugify');
 const tourSchema = new mongoose.Schema({ //Creating the Tour Schema in Mongoose
 
     name: {
@@ -8,6 +8,7 @@ const tourSchema = new mongoose.Schema({ //Creating the Tour Schema in Mongoose
       unique: true,
       trim: true
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'A tour must have a duration']
@@ -65,6 +66,18 @@ tourSchema.virtual('durationWeeks').get(function() { //using regular function to
   return this.duration / 7;
 });
 
+//defining a mongodb document middleware that runs before the model is processed or saved. runs before .save() and .create()
+tourSchema.pre('save', function(next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+//can have multiple pre and post middleware, also called hooks
+//defining a post middleware function that is called after all pre middleware are serviced.
+// tourSchema.post('save', function(doc, next) {
+//   console.log(doc);
+//   next();
+// });
 const Tour = mongoose.model('Tour', tourSchema); //creating the model based on the defined schema
 
 module.exports = Tour; //export the model
