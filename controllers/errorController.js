@@ -20,6 +20,8 @@ const handleValidationError = err => {
   return new AppError(err.message.replace(',', '.'), 400);
 };
 
+const handleJWTError = () => new AppError('Invalid token, Please login again', 401);
+const handleTokenExpiredError = () => new AppError('Token has expired Please login again', 403);
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -63,6 +65,8 @@ module.exports = (err, req, res, next) => {
 
     if (err.name === 'CastError') error = handleCastErrorDB(err);
     if (err.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (err.name === 'JsonWebTokenError') error = handleJWTError();
+    if (err.name === 'TokenExpiredError') error = handleTokenExpiredError();
     if (err.name === 'ValidationError') error = handleValidationError(err); //since destructuring loses some property using the original err object here to preserve the message property.
 
     sendErrorProd(error, res);

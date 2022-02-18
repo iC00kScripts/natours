@@ -1,5 +1,6 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
+const authController = require('./../controllers/authController');
 
 //TOURS route grouping
 const router = express.Router();
@@ -13,7 +14,7 @@ router
 
 router
   .route('/')
-  .get(tourController.getAllTours)
+  .get(authController.protect, tourController.getAllTours) //protect this endpoint
   .post(tourController.createTour); // to use a middleware on this path alone, use something like.post(tourController.checkBody, tourController.createTour);
 
 //get the stats using its own route.
