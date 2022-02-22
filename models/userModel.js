@@ -44,7 +44,10 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords do not match. Please try again'
     }
   },
-  passwordChangedAt: Date
+  passwordChangedAt: {
+    type: Date,
+    default: Date.now()
+  }
 });
 
 //encrypting the password
@@ -65,7 +68,7 @@ userSchema.methods.correctPassword = async function(candidatePassword, userPassw
 };
 
 //check if user password has changed after creating token
-userSchema.methods.changedPasswordAfter = async function(JWTTimestamp) {
+userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);// convert to milliseconds
     return JWTTimestamp < changedTimestamp;
