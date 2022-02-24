@@ -12,6 +12,15 @@ const signToken = (id) => {
   });
 };
 
+const sendJWT = (id, jsonResponse) => {
+  const token = signToken(id);
+
+  return jsonResponse.status(200).json({
+    status: 'success',
+    token
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -46,14 +55,10 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   //if all passed, send token to client
-  const token = signToken(user._id);
-
-  res.status(200).json({
-    status: 'success',
-    token
-  });
+  sendJWT(user._id, res);
 });
 
+//this is our middleware that makes sure only properly logged in users can access some routes
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
 
@@ -151,11 +156,26 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-  //log the user in by sending JWT TODO: refactor code snippet into its own function
-  const token = signToken(user._id);
+  //log the user in by sending JWT //DONE: refactor code snippet into its own function
+  sendJWT(user._id, res);
+});
 
-  res.status(200).json({
-    status: 'success',
-    token
-  });
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //get user from collection
+  let { user } = req; //retrieve user from the request
+  //since password isn't returned, requery the user and include password property
+  user = await User.findById(user._id).select('+password');
+
+  //check if posted password is correct
+  if (!(await user.correctPassword(req.body.oldPassword, user.password))) {
+    return next(new AppError('Please enter correct current password or reset password if forgotten', 400));
+  }
+
+  //update to new password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  //log user in by sending a new jwt
+  sendJWT(user._id, res);
 });
