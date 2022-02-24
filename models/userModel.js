@@ -70,6 +70,16 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
+//updating the changedPasswordAt property
+userSchema.pre('save', async function(next) {
+  //run only if password was modified
+  if (!this.isModified('password') || this.isNew) return next(); //exit middleware if this is a new document of if password wasn't modified
+
+  // hash the password with cost of 13 before storing in the database
+  this.passwordChangedAt = Date.now() - 1000; //this is added because of the possibility of a slight time difference between saving to db and getting the timestamp
+  next();
+});
+
 //creating an instance method to check if the password provided is equal to that in the document
 userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
@@ -91,9 +101,7 @@ userSchema.methods.createPasswordResetToken = function() {
   this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex'); //insert the reset token into the document
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // password reset token expires after 10mins
 
-  console.log({ resetToken }, this.passwordResetToken, this.passwordResetExpires);
-
-  return resetToken; //TODO: this will be sent via email
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema); //creating the model based on the defined schema
