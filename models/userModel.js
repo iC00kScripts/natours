@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -23,6 +24,11 @@ const userSchema = new mongoose.Schema({
   },
 
   photo: String,
+  role: {
+    type: String,
+    enum: ['admin', 'user', 'guide', 'lead-guide'],
+    default: 'user'
+  },
 
   password: {
     type: String,
@@ -47,7 +53,9 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: {
     type: Date,
     default: Date.now()
-  }
+  },
+  passwordResetToken: String,
+  passwordResetExpires: Date
 });
 
 //encrypting the password
@@ -74,6 +82,18 @@ userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
     return JWTTimestamp < changedTimestamp;
   }
   return false; //user password has not been changed recently
+};
+
+//generate reset token
+userSchema.methods.createPasswordResetToken = function() {
+  const resetToken = crypto.randomBytes(32).toString('hex'); //generate random hex token using built in crypto library
+
+  this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex'); //insert the reset token into the document
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // password reset token expires after 10mins
+
+  console.log({ resetToken }, this.passwordResetToken, this.passwordResetExpires);
+
+  return resetToken; //TODO: this will be sent via email
 };
 
 const User = mongoose.model('User', userSchema); //creating the model based on the defined schema

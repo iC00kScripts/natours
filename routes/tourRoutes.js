@@ -32,7 +32,10 @@ router
   .route('/:id')
   .get(tourController.getTour)
   .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),//adding user authorization middleware
+    tourController.deleteTour);
 
 //export the file as a module so it can be imported into another js file
 module.exports = router;

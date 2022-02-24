@@ -15,6 +15,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
+    role: req.body.role,
     passwordConfirm: req.body.passwordConfirm
   });
 
@@ -79,3 +80,32 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser; //add user data to request
   next();
 });
+
+exports.restrictTo = (...roles) => { //roles will be an array of all entered parameters (defined as spread operator )
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {//retrieve the user role from the req
+      return next(
+        new AppError('You do not have permission to perform this action', 403)
+      );
+    }
+    next();
+  };
+};
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  //get user email
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(new AppError('There is no user with that email address', 404));
+  }
+
+  //generate random reset token
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false }); //disable the validators so we can update the document with new token
+
+  //send it as email
+});
+
+exports.resetPassword = (req, res, next) => {
+};
