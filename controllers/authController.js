@@ -161,6 +161,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
+  
   //get user from collection
   let { user } = req; //retrieve user from the request
   //since password isn't returned, requery the user and include password property
