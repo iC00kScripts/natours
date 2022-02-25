@@ -15,12 +15,27 @@ const signToken = (id) => {
   });
 };
 
-const sendJWT = (id, jsonResponse) => {
+const sendJWT = (id, jsonResponse, statusCode, jsonData = {}) => {
   const token = signToken(id);
 
-  return jsonResponse.status(200).json({
+  //generate the cookie options
+  const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    httpOnly: true
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true; //cookie will only be sent over secure connections when running on PROD environment
+
+  jsonResponse.cookie('jwt', token, cookieOptions);
+
+  //remove password from output
+  if (jsonData) jsonData.password = undefined;
+
+  return jsonResponse.status(statusCode).json({
     status: 'success',
-    token
+    token,
+    data: {
+      user: jsonData
+    }
   });
 };
 
@@ -33,15 +48,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm
   });
 
-  const token = signToken(newUser._id);
+  sendJWT(newUser._id, res, 201, newUser);
 
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser
-    }
-  });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -58,7 +66,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   //if all passed, send token to client
-  sendJWT(user._id, res);
+  sendJWT(user._id, res, 200);
 });
 
 //this is our middleware that makes sure only properly logged in users can access some routes
@@ -160,7 +168,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   //log the user in by sending JWT //DONE: refactor code snippet into its own function
-  sendJWT(user._id, res);
+  sendJWT(user._id, res, 200);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -181,5 +189,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   //log user in by sending a new jwt
-  sendJWT(user._id, res);
+  sendJWT(user._id, res, 200);
 });
