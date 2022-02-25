@@ -55,7 +55,12 @@ const userSchema = new mongoose.Schema({
     default: Date.now()
   },
   passwordResetToken: String,
-  passwordResetExpires: Date
+  passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
+  }
 });
 
 //encrypting the password
@@ -77,6 +82,12 @@ userSchema.pre('save', async function(next) {
 
   // hash the password with cost of 13 before storing in the database
   this.passwordChangedAt = Date.now() - 1000; //this is added because of the possibility of a slight time difference between saving to db and getting the timestamp
+  next();
+});
+
+//adding a query middleware that runs before any find operation to hide all inactive users based on the active flag
+userSchema.pre(/^find/, function(next) {
+  this.find({ active: { $ne: false } });
   next();
 });
 

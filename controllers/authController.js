@@ -6,6 +6,9 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const sendEmail = require('./../utils/email');
 
+//TODO: IMPLEMENT MAXIMUM FAILED LOGIN ATTEMPTS OF 4 AND LOCK USER ACCOUNT FOR 1 HOUR
+//TODO: keep user logged in with refresh tokens
+
 const signToken = (id) => {
   return jwt.sign({ id: id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN
@@ -161,7 +164,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  
+
   //get user from collection
   let { user } = req; //retrieve user from the request
   //since password isn't returned, requery the user and include password property
