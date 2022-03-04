@@ -18,14 +18,10 @@ router
   .post(tourController.createTour); // to use a middleware on this path alone, use something like.post(tourController.checkBody, tourController.createTour);
 
 //get the stats using its own route.
-router
-  .route('/tour-stats')
-  .get(tourController.getTourStats);
+router.route('/tour-stats').get(tourController.getTourStats);
 
 //get monthly plan by year.
-router
-  .route('/monthly-plan/:year')
-  .get(tourController.getMonthlyPlan);
+router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 
 //the route's home is /api/v1/tours therefore no need to include that in the route path again
 router
@@ -34,8 +30,9 @@ router
   .patch(tourController.updateTour)
   .delete(
     authController.protect,
-    authController.restrictTo('admin', 'lead-guide'),//adding user authorization middleware
-    tourController.deleteTour);
+    authController.restrictTo('admin', 'lead-guide'), //adding user authorization middleware
+    tourController.deleteTour
+  );
 
-//export the file as a module so it can be imported into another js file
+//export the file as a module, so it can be imported into another js file
 module.exports = router;

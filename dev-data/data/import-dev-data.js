@@ -16,14 +16,14 @@ mongoose
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   })
   .then(() => {
     console.log('DB Connection successful!');
   });
 
 //READ JSON FILE
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8'));
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
 
 //IMPORT DATA INTO THE DATABASE
 const importData = async () => {
@@ -43,14 +43,14 @@ const deleteData = async () => {
       useNewUrlParser: true,
       useCreateIndex: true,
       useFindAndModify: false,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
     });
     if (process.argv[2] === '--delete') {
       await deleteData();
     } else if (process.argv[2] === '--import') {
       await importData();
     } else {
-      console.log('Please specify \'--import\' or \'--delete\'');
+      console.log("Please specify '--import' or '--delete'");
     }
   } catch (err) {
     console.log(err);

@@ -6,7 +6,6 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const sendEmail = require('./../utils/email');
 
-//TODO: IMPLEMENT MAXIMUM FAILED LOGIN ATTEMPTS OF 4 AND LOCK USER ACCOUNT FOR 1 HOUR
 //TODO: keep user logged in with refresh tokens
 
 const signToken = (id) => {
