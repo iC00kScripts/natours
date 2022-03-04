@@ -56,14 +56,19 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: {
     type: Date,
     default: Date.now(),
+    select: false,
   },
   passwordResetToken: String,
   passwordResetExpires: Date,
   passwordFailedTries: {
     type: Number,
     default: 0,
+    select: false,
   },
-  passwordLastFailed: Date,
+  passwordLastFailed: {
+    type: Date,
+    select: false,
+  },
   active: {
     type: Boolean,
     default: true,
