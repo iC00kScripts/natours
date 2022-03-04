@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const User = require('./userModel');
 //const validator = require('validator');
 const tourSchema = new mongoose.Schema(
   {
@@ -110,6 +111,7 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
+    guides: Array,
   },
   {
     toJSON: { virtuals: true }, //enable virtual properties to be displayed in JSON responses
@@ -127,6 +129,13 @@ tourSchema.virtual('durationWeeks').get(function () {
 //defining a mongodb document middleware that runs before the model is processed or saved. runs before .save() and .create()
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+//embedding the guides document within the tour documents before saving
+tourSchema.pre('save', async function (next) {
+  const guidesPromises = this.guides.map(async (id) => await User.findById(id)); //since this returns an array of promises, we need to await it in the next line
+  this.guides = await Promise.all(guidesPromises);
   next();
 });
 
