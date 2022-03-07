@@ -36,9 +36,13 @@ const reviewSchema = new mongoose.Schema(
 
 //populate the Tour and User collections
 reviewSchema.pre(/^find/, function (next) {
+  // this.populate({
+  //   path: 'tour user', //get referenced tour and user documents from their collections
+  //   select: 'name photo', //exclude these fields from the result
+  // }).select('-__v');
   this.populate({
-    path: 'tour user', //get referenced tour and user documents from their collections
-    select: 'name photo', //exclude these fields from the result
+    path: 'user',
+    select: 'name photo',
   }).select('-__v');
   next();
 });

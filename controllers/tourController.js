@@ -67,7 +67,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id); //find the tour using the id passed into the request parameter
+  const tour = await Tour.findById(req.params.id).populate('reviews'); //find the tour using the id passed into the request parameter. Populate all associated reviews using virtual populate
   //similarly we can use Tour.findOne({_id:req.params.id}) and it will work just the same way.
 
   if (!tour) {

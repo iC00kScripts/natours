@@ -132,6 +132,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+//adding a Virtual Populate to retrieve all reviews associated with a tour
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour', //name of the referenced field in the review model
+  localField: '_id', //name of field in the local model
+});
+
 //DOCUMENT MIDDLEWARE
 //defining a mongodb document middleware that runs before the model is processed or saved. runs before .save() and .create()
 tourSchema.pre('save', function (next) {
