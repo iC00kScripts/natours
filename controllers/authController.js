@@ -66,7 +66,6 @@ exports.login = catchAsync(async (req, res, next) => {
     .select('+passwordLastFailed')
     .select('+passwordFailedTries'); //since password and some other needed fields were excluded from all find response, we explicitly including them here
 
-  console.log(user);
   if (!user) {
     return next(new AppError('Incorrect email or password!', 401));
   }

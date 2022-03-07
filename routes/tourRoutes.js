@@ -1,9 +1,12 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('./../controllers/authController');
+const reviewRouter = require('./../routes/reviewRoutes');
 
 //TOURS route grouping
 const router = express.Router();
+
+router.use('/:tourId/reviews', reviewRouter); //mount the reviewRoute onto the tourRoutes to handle requests matching the path
 
 //router.param('id', tourController.checkID); //validate ID by running the middleware
 
