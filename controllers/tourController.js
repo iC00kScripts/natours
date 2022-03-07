@@ -1,4 +1,4 @@
-const Tour = require('./../models/tourModel');//import the Tour model
+const Tour = require('./../models/tourModel'); //import the Tour model
 const APIFeatures = require('./../utils/apiFeatures');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
@@ -61,8 +61,8 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
     status: 'success',
     results: tours.length,
     data: {
-      tours
-    }
+      tours,
+    },
   });
 });
 
@@ -77,8 +77,8 @@ exports.getTour = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      tour
-    }
+      tour,
+    },
   });
 });
 
@@ -93,15 +93,15 @@ exports.createTour = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      tour: newTour
-    }
+      tour: newTour,
+    },
   });
 });
 
 exports.updateTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
-    runValidators: true
+    runValidators: true,
   });
 
   if (!tour) {
@@ -111,8 +111,8 @@ exports.updateTour = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      tour // this is the same this as writing tour: tour. the shortcut was introduced as part of ES6
-    }
+      tour, // this is the same this as writing tour: tour. the shortcut was introduced as part of ES6
+    },
   });
 });
 
@@ -124,31 +124,31 @@ exports.deleteTour = catchAsync(async (req, res, next) => {
   }
   res.status(204).json({
     status: 'success',
-    data: null
+    data: null,
   });
 });
 
-
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
-    { //aggregation pipeline helps to calculate specified fields and returns the response
-      $match: { ratingsAverage: { $gte: 4.5 } }
+    {
+      //aggregation pipeline helps to calculate specified fields and returns the response
+      $match: { ratingsAverage: { $gte: 4.5 } },
     },
     {
       $group: {
         //_id: null, // using null here, ensures that the aggregated results are not grouped by any field
-        _id: { $toUpper: '$difficulty' },//returns aggregated results  grouped by difficulty field
+        _id: { $toUpper: '$difficulty' }, //returns aggregated results  grouped by difficulty field
         numTours: { $sum: 1 }, //since each documents will be going through the pipeline adding 1 each pass will finally return the total
         numRatings: { $sum: '$ratingsQuantity' },
         avgRating: { $avg: '$ratingsAverage' }, //the average rating
-        avgPrice: { $avg: '$price' },//the price
+        avgPrice: { $avg: '$price' }, //the price
         minPrice: { $min: '$price' },
-        maxPrice: { $max: '$price' }
-      }
+        maxPrice: { $max: '$price' },
+      },
     },
     {
-      $sort: { avgPrice: 1 } //sorting the results of the aggregate pipeline based on properties defined above ( here, sort by avgPrice in ascending order)
-    }
+      $sort: { avgPrice: 1 }, //sorting the results of the aggregate pipeline based on properties defined above ( here, sort by avgPrice in ascending order)
+    },
     //stages can be repeated. the below snippet is to show that functionality
     // {
     //   $match: { _id: { $ne: 'EASY' } } // this returns results with _id not equal to EASY
@@ -158,8 +158,8 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      stats //return the stats aggregate
-    }
+      stats, //return the stats aggregate
+    },
   });
 });
 
@@ -167,43 +167,43 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   const year = req.params.year * 1;
   const plan = await Tour.aggregate([
     {
-      $unwind: '$startDates' //extracts the document into individual documents by splitting the startDates array
+      $unwind: '$startDates', //extracts the document into individual documents by splitting the startDates array
     },
     {
       $match: {
         startDates: {
           $gte: new Date(`${year}-01-01`), //make sure we match the full year starting January 1 and ending december 31
-          $lte: new Date(`${year}-12-31`)
-        }
-      }
-    }
-    , {
+          $lte: new Date(`${year}-12-31`),
+        },
+      },
+    },
+    {
       $group: {
         _id: { $month: '$startDates' }, //extract the month from the startdate and group documents in result  by month
         numTourStarts: { $sum: 1 }, //for each tours that match, sum them
-        tours: { $push: '$name' } // push the name of the tours that match into an array with property name 'tours'
-      }
+        tours: { $push: '$name' }, // push the name of the tours that match into an array with property name 'tours'
+      },
     },
     {
-      $addFields: { month: '$_id' } // add a new field called month with value of _id
+      $addFields: { month: '$_id' }, // add a new field called month with value of _id
     },
     {
       $project: {
-        _id: 0 //hide the _id field from the result
-      }
+        _id: 0, //hide the _id field from the result
+      },
     },
     {
-      $sort: { numTourStarts: -1 } //sort the result by the numTourStarts field in descending order
+      $sort: { numTourStarts: -1 }, //sort the result by the numTourStarts field in descending order
     },
     {
-      $limit: 12// limit the results returned to 12
-    }
+      $limit: 12, // limit the results returned to 12
+    },
   ]);
 
   res.status(200).json({
     status: 'success',
     data: {
-      plan
-    }
+      plan,
+    },
   });
 });

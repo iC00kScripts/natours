@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const User = require('./userModel');
+//const User = require('./userModel'); no longer needed since we are now referencing users(guides)
 //const validator = require('validator');
 const tourSchema = new mongoose.Schema(
   {
@@ -111,7 +111,14 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array,
+    //guides: Array, FOR EMBEDDING GUIDES IS REPRESENTED THIS WAY IN THE SCHEMA
+    //using child referencing
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true }, //enable virtual properties to be displayed in JSON responses
@@ -133,11 +140,11 @@ tourSchema.pre('save', function (next) {
 });
 
 //embedding the guides document within the tour documents before saving
-tourSchema.pre('save', async function (next) {
-  const guidesPromises = this.guides.map(async (id) => await User.findById(id)); //since this returns an array of promises, we need to await it in the next line
-  this.guides = await Promise.all(guidesPromises);
-  next();
-});
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id)); //since this returns an array of promises, we need to await it in the next line
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
 
 //can have multiple pre and post middleware, also called hooks
 //defining a post middleware function that is called after all pre middleware are serviced.
@@ -152,6 +159,16 @@ tourSchema.pre(/^find/, function (next) {
   this.find({
     //'this' object here points to the query object
     secretTour: { $ne: true },
+  });
+  next();
+});
+
+//populate referenced fields before sending result  to all find using query pre middleware
+//populate helps to include referenced fields from other collections
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides', //get referenced documents from User collection
+    select: '-__v', //exclude these fields from the result
   });
   next();
 });
