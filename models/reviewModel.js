@@ -34,6 +34,15 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+//populate the Tour and User collections
+reviewSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'tour user', //get referenced tour and user documents from their collections
+    select: 'name photo', //exclude these fields from the result
+  }).select('-__v');
+  next();
+});
+
 const Review = mongoose.model('Review', reviewSchema);
 
 module.exports = Review;

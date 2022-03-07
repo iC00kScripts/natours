@@ -11,6 +11,7 @@ const globalErrorHandler = require('./controllers/errorController');
 //import our routers
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -27,10 +28,9 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this ip, please try again',
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 app.use('/api', limiter);
-
 
 app.use(express.json({ limit: '10kb' })); //this middleware helps us to modify the request data (Body-parser) and limit the body size
 
@@ -42,16 +42,16 @@ app.use(xss()); //package: xss-clean
 
 //Prevent parameter polution
 app.use(
-  hpp(
-    {
-      whitelist: [
-        'duration',
-        'ratingsQuantity',
-        'ratingsAverage',
-        'maxGroupSize',
-        'difficulty',
-        'price'] //these fields are allowed to show multiple times
-    })
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ], //these fields are allowed to show multiple times
+  })
 ); //package: hpp
 
 app.use(express.static(`${__dirname}/public`)); // middleware to help serve static files in public folder
@@ -64,11 +64,12 @@ app.use((req, res, next) => {
 //mount the routers, defining their home path
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 //handling exception for other routes not declared above
 app.all('*', (req, res, next) => {
   //using the new AppError class
-  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));// this works because express only expects an argumment in the next function if there's an error.
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404)); // this works because express only expects an argumment in the next function if there's an error.
 });
 
 //error handling middleware
