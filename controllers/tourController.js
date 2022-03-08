@@ -1,7 +1,6 @@
 const Tour = require('./../models/tourModel'); //import the Tour model
-const APIFeatures = require('./../utils/apiFeatures');
-const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
+const factory = require('./handlerFactory');
 
 //create middleware function to use in the param middleware to check for valid Id
 // exports.checkID = (req, res, next, value) => {
@@ -47,86 +46,12 @@ exports.aliasTopTours = (req, res, next) => {
 };
 
 //route handlers
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate(0); //run all features on the query
+exports.getAllTours = factory.getAll(Tour);
 
-  const tours = await features.query; //execute the chained queries on the database model
-
-  //send response
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews'); //find the tour using the id passed into the request parameter. Populate all associated reviews using virtual populate
-  //similarly we can use Tour.findOne({_id:req.params.id}) and it will work just the same way.
-
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
-
-exports.createTour = catchAsync(async (req, res, next) => {
-  //one way to save document in mongoose
-  // const newTour = new Tour({});
-  // newTour.save();
-
-  //another preferred way
-  const newTour = await Tour.create(req.body);
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: newTour,
-    },
-  });
-});
-
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour, // this is the same this as writing tour: tour. the shortcut was introduced as part of ES6
-    },
-  });
-});
-
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-});
+exports.getTour = factory.getOne(Tour, { path: 'reviews' }); //include the reviews virtual populate
+exports.createTour = factory.createOne(Tour);
+exports.updateTour = factory.updateOne(Tour);
+exports.deleteTour = factory.deleteOne(Tour); //using the factory deleteOne function
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
