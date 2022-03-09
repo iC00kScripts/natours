@@ -88,7 +88,7 @@ exports.getAll = (Model) =>
       .paginate(0); //run all features on the query
 
     const docs = await features.query; //execute the chained queries on the database model
-
+    //const docs = await features.query.explain(); //calling explain() on the query returns some statistics on the query.
     //send response
     res.status(200).json({
       status: 'success',
