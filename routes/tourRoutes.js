@@ -15,24 +15,34 @@ router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
-router
-  .route('/')
-  .get(authController.protect, tourController.getAllTours) //protect this endpoint
-  .post(tourController.createTour); // to use a middleware on this path alone, use something like.post(tourController.checkBody, tourController.createTour);
+router.route('/').get(tourController.getAllTours).post(
+  authController.protect, //protect this endpoint
+  authController.restrictTo('admin', 'lead-guide'), //only admin and lead guides can create new tours
+  tourController.createTour
+); // to use a middleware on this path alone, use something like.post(tourController.checkBody, tourController.createTour);
 
 //get the stats using its own route.
 router.route('/tour-stats').get(tourController.getTourStats);
 
 //get monthly plan by year.
-router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
+router
+  .route('/monthly-plan/:year')
+  .get(
+    authController.restrictTo('admin', 'lead-guide', 'guide'),
+    tourController.getMonthlyPlan
+  );
 
 //the route's home is /api/v1/tours therefore no need to include that in the route path again
 router
   .route('/:id')
   .get(tourController.getTour)
-  .patch(tourController.updateTour)
-  .delete(
+  .patch(
     authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.updateTour
+  )
+  .delete(
+    authController.protect, //protect this endpoint
     authController.restrictTo('admin', 'lead-guide'), //adding user authorization middleware
     tourController.deleteTour
   );
