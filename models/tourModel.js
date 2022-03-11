@@ -130,6 +130,10 @@ const tourSchema = new mongoose.Schema(
 //tourSchema.index({ price: 1 }); //creating an index on the price field for faster READ operations
 tourSchema.index({ price: 1, ratingsAverage: -1 }); //compound index // 1-asc -1-desc
 tourSchema.index({ slug: 1 });
+
+//defining a 2d sphere index on startLocation for GeoSpatial queries
+tourSchema.index({ startLocation: '2dsphere' });
+
 //adding a virtual property that's not in the database i.e. a calculated field
 tourSchema.virtual('durationWeeks').get(function () {
   //using regular function to allow access to the 'this' of the current document
