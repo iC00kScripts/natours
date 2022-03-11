@@ -32,6 +32,11 @@ router
     tourController.getMonthlyPlan
   );
 
+//get all tours within :distance radius from :latlng. distance measures in :unit (km/mi)
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(tourController.getToursWithin);
+
 //the route's home is /api/v1/tours therefore no need to include that in the route path again
 router
   .route('/:id')

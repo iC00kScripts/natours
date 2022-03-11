@@ -1,6 +1,7 @@
 const Tour = require('./../models/tourModel'); //import the Tour model
 const catchAsync = require('./../utils/catchAsync');
 const factory = require('./handlerFactory');
+const AppError = require('./../utils/appError');
 
 //create middleware function to use in the param middleware to check for valid Id
 // exports.checkID = (req, res, next, value) => {
@@ -129,6 +130,34 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       plan,
+    },
+  });
+});
+
+//get all tours within :distance radius from :latlng. distance measures in :unit (km/mi)
+//tours-within/:distance/center/:latlng/unit/:unit
+exports.getToursWithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params; //populated using detructuring
+  const [lat, lng] = latlng.split(',');
+
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1; //get the radians by dividing using Earth's radius in mi or km
+
+  if (!lat || !lng) {
+    return next(
+      new AppError('Please provide a lat and lng in the format lat,lng', 400)
+    );
+  }
+
+  //GEOSPATIAL FILTERING OF TOUR
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
     },
   });
 });
