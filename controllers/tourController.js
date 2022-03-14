@@ -161,3 +161,44 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+//Get distances of all tours from a given latlng
+exports.getDistances = catchAsync(async (req, res, next) => {
+  const { latlng, unit } = req.params; //populated using detructuring
+  const [lat, lng] = latlng.split(',');
+
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001; //get the distance by using multiplier in mi or km
+
+  if (!lat || !lng) {
+    return next(
+      new AppError('Please provide a lat and lng in the format lat,lng', 400)
+    );
+  }
+
+  const toursWithDistance = await Tour.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [lng * 1, lat * 1],
+        },
+        distanceField: 'distance', //default is in meters
+        distanceMultiplier: multiplier, //returning the distance in miles or km based on unit param
+        //spherical: true,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tours: toursWithDistance,
+    },
+  });
+});

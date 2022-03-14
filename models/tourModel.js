@@ -194,12 +194,22 @@ tourSchema.post(/^find/, function (docs, next) {
 
 //AGGREGATION MIDDLEWARE
 tourSchema.pre('aggregate', function (next) {
+  //fix to make sure $geoNear is the first in the aggregation pipeline
+  let insertIndex = 1;
+  if (this.pipeline()[0].$geoNear) insertIndex = 2;
   //'this' object here, points to the current aggregate object
-  this.pipeline().unshift({
+  this.pipeline().splice(insertIndex, 1, {
     $match: {
-      secretTour: { $ne: true },
+      secretTour: {
+        $ne: true,
+      },
     },
-  }); //unshift adds the element at the beginning of the array
+  });
+  // this.pipeline().unshift({
+  //   $match: {
+  //     secretTour: { $ne: true },
+  //   },
+  // }); //unshift adds the element at the beginning of the array
   next();
 });
 
