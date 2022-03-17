@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -29,7 +30,7 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         'child-src': ['blob:'],
-        'connect-src': ['https://*.mapbox.com'],
+        'connect-src': ['https://*.mapbox.com', 'http://localhost:3000'],
         'default-src': ["'self'"],
         'font-src': ["'self'", 'https://fonts.gstatic.com'],
         'img-src': ["'self'", 'data:', 'blob:'],
@@ -56,6 +57,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 app.use(express.json({ limit: '10kb' })); //this middleware helps us to modify the request data (Body-parser) and limit the body size
+app.use(cookieParser()); //middleware parses cookie data
 
 //Data Sanitization against NoSQL query injection
 app.use(mongoSanitize()); //package: express-mongo-sanitize
