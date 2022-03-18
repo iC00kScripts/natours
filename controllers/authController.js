@@ -88,6 +88,14 @@ exports.login = catchAsync(async (req, res, next) => {
   sendJWT(user._id, res, 200);
 });
 
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedOut', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success', token: 'loggedOut' });
+};
+
 //this is our middleware that makes sure only properly logged in users can access some routes
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
@@ -124,6 +132,25 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   //everything checks okay. grant access to requested path
   req.user = currentUser; //add user data to request
+  next();
+});
+
+//Only for rendered pages, no errors!
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (token) {
+    //verify user token
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    //check if user still exists
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) return next();
+    //check if user changed password after token was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next();
+    }
+    //There is a logged in User make the user data available in the response for the template
+    res.locals.user = currentUser;
+  }
   next();
 });
 
