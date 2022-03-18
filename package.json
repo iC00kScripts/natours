@@ -6,10 +6,15 @@
   },
   "description": "Learning nodejs, expressjs and mongodb for backend development",
   "main": "app.js",
+  "targets": {
+    "main": false
+  },
   "scripts": {
     "start": "nodemon -L server.js",
     "start:prod": "NODE_ENV=production nodemon -L server.js",
-    "debug": "ndb server.js"
+    "debug": "ndb server.js",
+    "watch:js": "parcel build ./public/js/index.js --dist-dir ./public/js/bundled",
+    "build:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
   },
   "repository": {
     "type": "git",
@@ -45,6 +50,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "parcel": "^2.0.0-rc.0",
     "prettier": "^2.5.1"
   }
 }
