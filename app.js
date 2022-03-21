@@ -61,6 +61,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 app.use(express.json({ limit: '10kb' })); //this middleware helps us to modify the request data (Body-parser) and limit the body size
+app.use(express.urlencoded({ extended: true, limit: '10kb' })); //parse url encoded forms
 app.use(cookieParser()); //middleware parses cookie data
 
 //Data Sanitization against NoSQL query injection

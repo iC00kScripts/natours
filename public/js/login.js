@@ -15,7 +15,7 @@ export const login = async (email, password) => {
     if (data.status === 'success') {
       window.setTimeout(() => {
         location.assign('/');
-      }, 1500);
+      }, 500);
       showAlert('success', 'Logged in successfully');
     }
   } catch (err) {
@@ -37,8 +37,8 @@ export const logout = async () => {
     const data = await response.json();
 
     if (data.status === 'success') {
+      window.location.replace('/');
       showAlert('success', 'Logged out successfully', 1000);
-      location.reload(true);
     }
   } catch (e) {
     showAlert('error', 'Error logging out! Try again.');

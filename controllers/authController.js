@@ -129,6 +129,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   //everything checks okay. grant access to requested path
   req.user = currentUser; //add user data to request
+  res.locals.user = currentUser;
   next();
 });
 
@@ -150,6 +151,7 @@ exports.isLoggedIn = async (req, res, next) => {
         return next();
       }
       //There is a logged in User make the user data available in the response for the template
+      req.user = currentUser;
       res.locals.user = currentUser;
     }
   } catch (e) {}
