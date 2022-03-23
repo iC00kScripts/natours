@@ -15,7 +15,11 @@ router.use(authController.protect); //applying a global auth middleware to all e
 
 router.patch('/updatePassword', authController.updatePassword);
 router.get('/me', userController.getMe, userController.getUser);
-router.patch('/updateMe', userController.updateMe);
+router.patch(
+  '/updateMe',
+  userController.uploadUserPhoto,
+  userController.updateMe
+);
 router.delete('/deleteMe', userController.deleteMe);
 
 //RESTRICT THE ENDPOINTS BELOW TO ADMINS ONLY

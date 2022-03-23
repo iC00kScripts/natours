@@ -3,6 +3,28 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const factory = require('./handlerFactory');
 const Tour = require('../models/tourModel');
+const multer = require('multer');
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/img/users');
+  },
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+  },
+});
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    return cb(null, true);
+  }
+  cb(new AppError('Only image uploads allowed', 400), false);
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+exports.uploadUserPhoto = upload.single('photo');
 
 //this function helps to filter our all elements not listed in allowedFields from the object
 const filterObject = (obj, ...allowedFields) => {
@@ -29,7 +51,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
   //update user document
-  const filteredBody = filterObject(req.body, 'name', 'email'); //filter our field names that aren't allowed to be updated
+  let filteredBody = filterObject(req.body, 'name', 'email'); //filter our field names that aren't allowed to be updated
+  if (req.file) filteredBody.photo = req.file.filename; //check if there's an image upload and add the filename
+
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true, //return the newly updated document
     runValidators: true, //run validators on update
