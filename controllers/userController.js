@@ -4,6 +4,7 @@ const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const factory = require('./handlerFactory');
+const fs = require('fs');
 
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -41,6 +42,16 @@ exports.resizeUserPhoto = (req, res, next) => {
   next();
 };
 
+//this function helps to delete previous user photo on update.
+const deletePhotoFromServer = async (photo) => {
+  if (photo.startsWith('default')) return;
+
+  const path = `public/img/users/${photo}`;
+  await fs.unlink(path, (err) => {
+    if (err) return console.log(err);
+  });
+};
+
 //this function helps to filter our all elements not listed in allowedFields from the object
 const filterObject = (obj, ...allowedFields) => {
   const newObj = {};
@@ -56,6 +67,7 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log(req);
   //create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -67,7 +79,10 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
   //update user document
   let filteredBody = filterObject(req.body, 'name', 'email'); //filter our field names that aren't allowed to be updated
-  if (req.file) filteredBody.photo = req.file.filename; //check if there's an image upload and add the filename
+  if (req.file) {
+    filteredBody.photo = req.file.filename; //add uploaded image if available
+    await deletePhotoFromServer(req.user.photo); //remove the old file from the system
+  }
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true, //return the newly updated document

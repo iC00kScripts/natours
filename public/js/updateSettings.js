@@ -4,22 +4,22 @@ import { showAlert } from './alerts';
 //data is the data object
 export const updateSettings = async (type, data) => {
   const dt = { ...data };
+  console.log(dt);
   try {
     let url = 'http://localhost:3000/api/v1/users/';
     url += type === 'data' ? 'updateMe' : 'updatePassword';
 
     let response = await fetch(url, {
       method: 'PATCH',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(dt),
+      // headers: {
+      //   'content-type': 'application/json',
+      // },
+      body: dt, //JSON.stringify(dt),
     });
     if (!response.ok) throw response;
     let data = await response.json();
 
     if (data.status === 'success') {
-      window.location.reload(true);
       showAlert('success', `Updated User ${type} successfully`, 2000);
     }
   } catch (err) {

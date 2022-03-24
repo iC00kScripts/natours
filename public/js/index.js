@@ -31,10 +31,15 @@ if (userDataForm) {
     }
     e.preventDefault();
     document.querySelector('.btn--save-settings').textContent = 'UPDATING...';
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    await updateSettings('data', { name, email });
+    const form = new FormData();
+    form.append('name', document.getElementById('name').value);
+    form.append('email', document.getElementById('email').value);
+    form.append('photo', document.getElementById('photo').files[0]);
+    console.log({ ...[...form.entries()] });
+    //console.log(JSON.stringify(...form.entries()));
+    await updateSettings('data', { ...[...form.entries()] });
     document.querySelector('.btn--save-settings').textContent = 'SAVE SETTINGS';
+    //location.reload(true);
   });
 }
 
