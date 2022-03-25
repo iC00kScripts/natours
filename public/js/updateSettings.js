@@ -4,18 +4,23 @@ import { showAlert } from './alerts';
 //data is the data object
 export const updateSettings = async (type, data) => {
   const dt = { ...data };
-  console.log(dt);
+  let options = { method: 'PATCH' };
   try {
     let url = 'http://localhost:3000/api/v1/users/';
-    url += type === 'data' ? 'updateMe' : 'updatePassword';
+    if (type === 'data') {
+      url += 'updateMe';
+      let form = new FormData();
+      form.append('name', dt.name);
+      form.append('email', dt.email);
+      form.append('photo', dt.photo);
+      options.body = form;
+    } else {
+      url += 'updatePassword';
+      options.headers = { 'Content-Type': 'application/json' };
+      options.body = JSON.stringify(dt);
+    }
 
-    let response = await fetch(url, {
-      method: 'PATCH',
-      // headers: {
-      //   'content-type': 'application/json',
-      // },
-      body: dt, //JSON.stringify(dt),
-    });
+    let response = await fetch(url, options);
     if (!response.ok) throw response;
     let data = await response.json();
 
