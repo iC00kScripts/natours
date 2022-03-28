@@ -14,6 +14,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
@@ -29,18 +30,23 @@ app.use(
     crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: {
       directives: {
-        'child-src': ['blob:'],
+        'child-src': ['blob:', 'https://*.stripe.com'],
         'connect-src': [
           'https://*.mapbox.com',
           'http://localhost:3000',
+          'https://*.stripe.com',
           'ws://localhost:*',
         ],
         'default-src': ["'self'"],
         'font-src': ["'self'", 'https://fonts.gstatic.com'],
-        'img-src': ["'self'", 'data:', 'blob:'],
-        'script-src': ["'self'", 'https://*.mapbox.com'],
+        'img-src': ["'self'", 'data:', 'blob:', 'https://*.stripe.com'],
+        'script-src': [
+          "'self'",
+          'https://*.mapbox.com',
+          'https://*.stripe.com',
+        ],
         'style-src': ["'self'", "'unsafe-inline'", 'https:'],
-        'worker-src': ['blob:'],
+        'worker-src': ['blob:', 'https://*.stripe.com'],
       },
     },
   })
@@ -94,6 +100,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 //handling exception for other routes not declared above
 app.all('*', (req, res, next) => {
