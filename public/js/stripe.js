@@ -7,15 +7,12 @@ export const bookTour = async (tourId) => {
 
   try {
     //get checkout session from the server
-    const session = await fetch(
-      `http://localhost:3000/api/v1/bookings/checkout-session/${tourId}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const session = await fetch(`/api/v1/bookings/checkout-session/${tourId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
     let data = await session.json();
     //console.log(data.session);

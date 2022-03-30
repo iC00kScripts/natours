@@ -6,7 +6,7 @@ export const updateSettings = async (type, data) => {
   const dt = { ...data };
   let options = { method: 'PATCH' };
   try {
-    let url = 'http://localhost:3000/api/v1/users/';
+    let url = '/api/v1/users/';
     if (type === 'data') {
       url += 'updateMe';
       let form = new FormData();

@@ -22,13 +22,13 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    //console.log('DB Connection successful!');
+    console.log('DB Connection successful!');
   });
 
 //START THE SERVER
 const port = process.env.PORT || 8000; //read port from environment if available else use defined port
 const server = app.listen(port, () => {
-  //console.log(`App running on port ${port}...`);
+  console.log(`App running on port ${port}...`);
 });
 
 //listening for a unhandledRejection event globally

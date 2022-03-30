@@ -2,7 +2,7 @@ import { showAlert } from './alerts';
 
 export const login = async (email, password) => {
   try {
-    const response = await fetch('http://localhost:3000/api/v1/users/login', {
+    const response = await fetch('/api/v1/users/login', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -27,7 +27,7 @@ export const login = async (email, password) => {
 
 export const logout = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/v1/users/logout', {
+    const response = await fetch('/api/v1/users/logout', {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
