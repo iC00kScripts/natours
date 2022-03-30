@@ -48,7 +48,7 @@ const deletePhotoFromServer = async (photo) => {
 
   const path = `public/img/users/${photo}`;
   await fs.unlink(path, (err) => {
-    if (err) return console.log(err);
+    //if (err) return console.log(err);
   });
 };
 

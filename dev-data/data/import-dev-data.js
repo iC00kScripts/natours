@@ -11,7 +11,7 @@ dotenv.config({ path: `${__dirname}/../../.env` }); //load environment variables
 //initialize the database using the environment variables.
 const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DB_PASSWORD);
 
-console.log('Connecting to remote database');
+//console.log('Connecting to remote database');
 
 mongoose
   .connect(DB, {
@@ -21,7 +21,7 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log('DB Connection successful!');
+    //console.log('DB Connection successful!');
   });
 
 //READ JSON FILE

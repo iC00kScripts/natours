@@ -18,14 +18,14 @@ export const bookTour = async (tourId) => {
     );
 
     let data = await session.json();
-    console.log(data.session);
+    //console.log(data.session);
 
     //create a checkout form and charge card
     await stripe.redirectToCheckout({
       sessionId: data.session.id,
     });
   } catch (e) {
-    console.log(e);
+    //console.log(e);
     showAlert('error', e);
   }
 };
