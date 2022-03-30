@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
 const User = require('../models/userModel');
+const Booking = require('../models/bookingModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('../utils/appError');
 
@@ -42,6 +43,18 @@ exports.getAccount = (req, res) => {
     title: 'Your Account',
   });
 };
+
+exports.getMyTours = catchAsync(async (req, res, next) => {
+  //find bookings with user id
+  const bookings = await Booking.find({ user: req.user.id });
+
+  //find tours with returnedIDs
+  const tourIDs = bookings.map((booking) => booking.tour); //extract the tour ids into a separate arrays
+  const tours = await Tour.find({ _id: { $in: tourIDs } }); //find all tours with id in the tourIDS array
+
+  res.status(200).render('overview', { title: 'My Tours', tours });
+});
+
 exports.controlCacheHeader = (req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');

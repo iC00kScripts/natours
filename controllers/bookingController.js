@@ -4,6 +4,7 @@ const Booking = require('../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
 const AppError = require('../utils/appError');
+const User = require('../models/userModel');
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -41,8 +42,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   //TEMPORARY solution till the system goes live.
   const { tour, user, price } = req.query;
-  console.log(req.query);
-
   if (!tour || !user || !price) {
     return next();
   }
@@ -51,3 +50,11 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
 
   res.redirect(req.originalUrl.split('?')[0]);
 });
+
+exports.getBooking = factory.getOne(Booking);
+
+//for Administrative purposes only
+exports.createBooking = factory.createOne(Booking);
+exports.getAllBookings = factory.getAll(Booking);
+exports.updateBooking = factory.updateOne(Booking);
+exports.deleteBooking = factory.deleteOne(Booking);

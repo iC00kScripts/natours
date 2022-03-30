@@ -20,6 +20,7 @@ router.use(authController.isLoggedIn); //use the middleware to check for logged 
 //router.get('/', viewsController.getOverview);
 router.get('/tour/:slug', viewsController.getTour);
 router.get('/login', viewsController.getLoginForm);
+router.get('/my-tours', viewsController.getMyTours);
 router.post('/submit-user-data', viewsController.updateUserData);
 
 module.exports = router;
