@@ -7,21 +7,14 @@ const router = express.Router(); //allow access to the params coming from the to
 //only authenticated users can create/update/delete  a review
 router.use(authController.protect);
 
-router.get(
-  '/checkout-session/:tourId',
-  authController.protect,
-  bookingController.getCheckoutSession
-);
+router.get('/checkout-session/:tourId', bookingController.getCheckoutSession);
 
-router.use(authController.restrictTo('admin', 'lead-guide', 'guide'));
+router.use(authController.restrictTo('admin', 'lead-guide'));
 
 router
   .route('/')
   .get(bookingController.getAllBookings)
-  .post(
-    authController.restrictTo('admin', 'lead-guide'),
-    bookingController.createBooking
-  );
+  .post(bookingController.createBooking);
 
 router
   .route('/:id')
