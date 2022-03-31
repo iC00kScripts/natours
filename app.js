@@ -28,6 +28,8 @@ app.set('views', path.join(__dirname, 'views')); //setting the directory for our
 
 //global middlewares
 app.use(cors()); //implementing cors
+app.options('*', cors()); //Responding to the OPTIONS REQUEST for the pre-flight phase for non-simple requests(PATCH, DELETE, PUT) sending CORS
+
 app.use(express.static(path.join(__dirname, 'public'))); // middleware to help serve static files in public folder
 
 app.use(
