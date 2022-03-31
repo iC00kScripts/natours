@@ -34,6 +34,7 @@ app.use(
         'child-src': ['blob:', 'https://*.stripe.com'],
         'connect-src': [
           'https://*.mapbox.com',
+          'https://*.herokuapp.com',
           'http://localhost:3000',
           'https://*.stripe.com',
           'ws://localhost:*',
@@ -44,6 +45,7 @@ app.use(
         'script-src': [
           "'self'",
           'https://*.mapbox.com',
+          'https://*.herokuapp.com',
           'https://*.stripe.com',
         ],
         'style-src': ["'self'", "'unsafe-inline'", 'https:'],
