@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
@@ -26,6 +27,7 @@ app.set('view engine', 'pug'); //defining the view engine
 app.set('views', path.join(__dirname, 'views')); //setting the directory for our views
 
 //global middlewares
+app.use(cors()); //implementing cors
 app.use(express.static(path.join(__dirname, 'public'))); // middleware to help serve static files in public folder
 
 app.use(
